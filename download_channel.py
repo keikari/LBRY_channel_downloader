@@ -170,6 +170,6 @@ while thread_count < max_threads:
   Thread(target=download).start()
 
 while len(active_claim_indexes) != 0 or count < len(claims):
-  printDownloadStatus()
+  print("Downloaded: %d/%d" % (count, len(claims)), end='\r' if count < len(claims) else '\n')
+  #printDownloadStatus()
   time.sleep(1)
-
