@@ -124,8 +124,10 @@ def printDownloadStatus():
   
 
 count = 0
+finished_claims = 0
 def download():
   global count
+  global finished_claims
   global active_claim_indexes
   try:
     while count < len(claims):
@@ -150,6 +152,7 @@ def download():
       # Start download(Respects daemon settigs about saving the file)
       requests.get(response["result"]["streaming_url"])
       active_claim_indexes.remove(my_count)
+      finished_claims += 1
   except KeyboardInterrupt:
       exit()
 
@@ -158,6 +161,7 @@ for i in range(len(claims)):
 # Set count to first non-downloaded publish
   if not isDownloaded(i):
     count = i
+    finished_claims = i
     break
   if i == len(claims)-1:
     print("Channel is downloaded")
@@ -169,7 +173,8 @@ while thread_count < max_threads:
   thread_count += 1
   Thread(target=download).start()
 
-while len(active_claim_indexes) != 0 or count < len(claims):
-  print("Downloaded: %d/%d" % (count, len(claims)), end='\r' if count < len(claims) else '\n')
+while len(active_claim_indexes) != 0 or finished_claims < len(claims):
+  print("Downloaded: %d/%d" % (finished_claims, len(claims)), end='\r')
   #printDownloadStatus()
   time.sleep(1)
+
