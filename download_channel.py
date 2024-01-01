@@ -31,7 +31,7 @@ while claims_left:
             "page_size": 50,
             "has_source": True,
             "order_by": "creation_height",
-            # This allows to query >1000 claims (May cause some dublicates, but shouldn't matter)
+            # This allows to query >1000 claims (May cause some duplicates, but shouldn't matter)
             "creation_height": "<=%i" % last_height,
             "page": page
         }
