@@ -19,6 +19,21 @@ def get_download_info():
         1000000  # Convert to bytes
     max_threads = int(input("Max parallel downloads: "))
 
+def resolve_channel():
+    response = requests.post(server, json={
+            "method": "resolve",
+            "params": {
+                "urls": channel,
+            }
+    }).json()
+
+    if ("result" not in response
+        or channel not in response["result"]
+        or 'error' in response["result"][channel]):
+        
+        print("Channel not found")
+        exit(1)
+
 def get_claims_to_download():
     print("Getting claims:....")
     global total_size
@@ -210,14 +225,18 @@ def start_downloads():
         thread_count += 1
         Thread(target=download).start()
 
-    while len(active_claim_indexes) != 0 or finished_claims_count < len(claims):
-        print(f"""Downloaded: {finished_claims_count}/{len(claims)} (~{get_current_download_speed():.2f} MB/s)""", end='\r')
+    while True:
+        all_downloads_finished = len(active_claim_indexes) == 0 or finished_claims_count >= len(claims)
+        print(f"""Downloaded: {finished_claims_count}/{len(claims)} (Current speed estimate: ~{get_current_download_speed():.2f} MB/s)""", end='\n' if all_downloads_finished else '\r')
+        if all_downloads_finished:
+            break
         # print_download_status()
         time.sleep(1)
 
 def main():
     try:
         get_download_info()
+        resolve_channel()
         get_claims_to_download()
         get_first_non_downloaded_claim_index()
         start_downloads()
